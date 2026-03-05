@@ -14,6 +14,7 @@ import streamlit as st
 from fpdf import FPDF
 from pypdf import PdfReader, PdfWriter
 import plotly.graph_objects as go
+import plotly.express as px
 import pandas as pd
 import qrcode
 from PIL import Image
@@ -29,8 +30,8 @@ class _MissionPDF(FPDF):
         # Register Unicode font from local fonts directory
         self._has_unicode_font = False
         font_dir = os.path.join(os.path.dirname(__file__), "fonts")
-        regular_path = os.path.join(font_dir, "NotoSansThai-Regular.ttf")
-        bold_path = os.path.join(font_dir, "NotoSansThai-Bold.ttf")
+        regular_path = os.path.join(font_dir, "Sarabun-Regular.ttf")
+        bold_path = os.path.join(font_dir, "Sarabun-Bold.ttf")
 
         if os.path.exists(regular_path) and os.path.exists(bold_path):
             try:
@@ -65,7 +66,7 @@ class _MissionPDF(FPDF):
     def header(self):
         self._font("B", 16)
         self.set_text_color(0, 0, 0)
-        self.cell(0, 10, f"MISSION DATA ANALYSIS REPORT: {self.sat_name.upper()}", align="C", ln=True)
+        self.cell(0, 10, f"รายงานการวิเคราะห์ข้อมูลภารกิจ: {self.sat_name.upper()}", align="C", ln=True)
 
         self._font("", 9)
         self.set_text_color(100, 100, 100)
@@ -85,7 +86,7 @@ class _MissionPDF(FPDF):
         self.set_y(-15)
         self._font("I", 8)
         self.set_text_color(150, 150, 150)
-        self.cell(0, 10, f"Page {self.page_no()}/{{nb}} | ระบบติดตามดาวเทียม | ID: {self.archive_id}", align="C")
+        self.cell(0, 10, f"หน้า {self.page_no()}/{{nb}} | ระบบดาวเทียม | ID: {self.archive_id}", align="C")
 
 
 def _generate_map_image(lat, lon, sat_name="SAT", style="tactical") -> bytes:
@@ -147,7 +148,7 @@ def _generate_map_image(lat, lon, sat_name="SAT", style="tactical") -> bytes:
         marker=dict(size=18, color=marker_color, symbol="rocket"),
         text=[sat_name],
         textposition="top center",
-        textfont=dict(size=14, color="white"),
+        textfont=dict(size=14, color="white", family="Arial, sans-serif"),
     ))
 
     map_style = "carto-darkmatter" if style == "tactical" else "open-street-map"
@@ -194,12 +195,12 @@ def generate_pdf(
     pdf.add_page()
 
     now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-    mode_str = "Predictive Analysis" if is_predictive else "Real-time Current"
+    mode_str = "วิเคราะห์ตำแหน่งล่วงหน้า" if is_predictive else "ข้อมูลปัจจุบัน (Real-time)"
 
     # ── Export Mode & Date ────────────────────────────────────────────────────
     pdf._font("B", 9)
     pdf.set_text_color(60, 60, 60)
-    pdf.cell(0, 6, f"Export Mode: {mode_str}", align="C", ln=True)
+    pdf.cell(0, 6, f"โหมดจำลอง: {mode_str}", align="C", ln=True)
     pdf.ln(2)
 
     if is_predictive and pred_dt:
@@ -211,7 +212,7 @@ def generate_pdf(
     pdf.set_fill_color(230, 230, 230)
     pdf._font("B", 9)
     pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 6, "GROUND STATION IDENTIFICATION", ln=True, fill=True)
+    pdf.cell(0, 6, "ข้อมูลสถานีภาคพื้นดิน (GROUND STATION IDENTIFICATION)", ln=True, fill=True)
     pdf.ln(2)
 
     pdf._font("", 8)
@@ -233,7 +234,7 @@ def generate_pdf(
     pdf.set_fill_color(230, 230, 230)
     pdf._font("B", 9)
     pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 6, "SATELLITE INFORMATION", ln=True, fill=True)
+    pdf.cell(0, 6, "ข้อมูลดาวเทียม (SATELLITE INFORMATION)", ln=True, fill=True)
     pdf.ln(2)
 
     pdf._font("", 8)
@@ -256,7 +257,7 @@ def generate_pdf(
     # ── TELEMETRY MATRIX (4 columns) ─────────────────────────────────────────
     pdf.set_fill_color(240, 240, 240)
     pdf._font("B", 8)
-    pdf.cell(0, 6, "TECHNICAL TELEMETRY MATRIX (40 UNIQUE CHANNELS)", ln=True, align="C", fill=True)
+    pdf.cell(0, 6, "ข้อมูลเทคนิคดาวเทียม (TECHNICAL TELEMETRY MATRIX) - 40 CHANNELS", ln=True, align="C", fill=True)
     pdf.ln(2)
 
     pdf._font("", 7)
