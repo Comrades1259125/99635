@@ -1,4 +1,4 @@
-# Satellite Telemetry Dashboard (V5950)
+# Satellite Telemetry Dashboard
 
 A comprehensive real-time and predicted satellite telemetry dashboard built with Streamlit, Skyfield, and Plotly.
 

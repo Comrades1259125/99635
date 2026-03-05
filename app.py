@@ -20,7 +20,7 @@ from satellite_data import (
 
 # ─── Page Config ────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Satellite Telemetry System — V5950",
+    page_title="Satellite Telemetry System",
     page_icon="🛰️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -435,7 +435,7 @@ header[data-testid="stHeader"] { display: none !important; }
     <div class="navbar">
         <div class="navbar-logo">
             <span style="font-size:1.8rem;">🛰️</span>
-            <span style="margin-left:10px;">V5950</span>
+            <span style="margin-left:10px;">SATELLITE</span>
         </div>
         <div class="navbar-links">
             <a href="#services">Services</a>
@@ -467,7 +467,7 @@ header[data-testid="stHeader"] { display: none !important; }
             <div class="carousel-overlay" style="background:linear-gradient(to right,rgba(0,0,0,0.75) 50%,rgba(0,0,0,0.1));"
                  >
                 <div style="text-align:left;max-width:700px;padding:0 60px;">
-                    <div style="font-size:0.8rem;letter-spacing:4px;color:#58a6ff;font-family:'Inter',sans-serif;font-weight:600;margin-bottom:16px;text-transform:uppercase;">— Secure Protocol V5950</div>
+                    <div style="font-size:0.8rem;letter-spacing:4px;color:#58a6ff;font-family:'Inter',sans-serif;font-weight:600;margin-bottom:16px;text-transform:uppercase;">— Secure Protocol</div>
                     <div class="carousel-title" style="text-align:left;">Track the universe<br>in real-time.</div>
                     <div class="carousel-subtitle" style="text-align:left;">Advanced satellite telemetry and mission control for professional ground station operators.</div>
                     <div style="margin-top:20px;display:flex;gap:10px;">
@@ -710,7 +710,7 @@ def _geocode_address(address: str):
             "https://nominatim.openstreetmap.org/search?"
             + urllib.parse.urlencode({"q": address, "format": "json", "limit": "1"})
         )
-        req = urllib.request.Request(url, headers={"User-Agent": "SatTelemetryV5950/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "SatTelemetry/1.0"})
         with urllib.request.urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read())
         if data:
