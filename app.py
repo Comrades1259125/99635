@@ -991,26 +991,25 @@ def mission_archive_control():
                        margin: 0 0 20px 0;">{st.session_state.passkey}</h2>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
             <p style="color: #28a745; font-size: 0.9rem; font-weight: 700; margin: 0;">
-                ✅ ไฟล์ PDF บันทึกแล้ว (พร้อม QR Code ตรวจสอบ)</p>
+                ✅ ไฟล์ PDF พร้อมสำหรับดาวน์โหลด (พร้อม QR Code ตรวจสอบ)</p>
             <p style="color: #666; font-size: 0.75rem; margin: 8px 0 0 0;">
-                📂 {st.session_state.get('saved_pdf_path', '')}</p>
+                📂 {st.session_state.get('saved_pdf_filename', '')}</p>
         </div>
         """, unsafe_allow_html=True)
 
         st.write("")
 
-        # Open Downloads folder button
+        # Download Button replaces the local folder explorer
         btn_col1, btn_col2 = st.columns(2)
         with btn_col1:
-            if st.button("📂 เปิดโฟลเดอร์ Downloads", use_container_width=True, type="primary"):
-                import subprocess
-                downloads_dir = os.path.join(os.path.expanduser("~"), "Downloads")
-                if sys.platform == "win32":
-                    subprocess.Popen(f'explorer "{downloads_dir}"')
-                elif sys.platform == "darwin":
-                    subprocess.Popen(["open", downloads_dir])
-                else:
-                    subprocess.Popen(["xdg-open", downloads_dir])
+            st.download_button(
+                label="📥 ดาวน์โหลดไฟล์ PDF",
+                data=st.session_state.get('cached_pdf', b''),
+                file_name=st.session_state.get('saved_pdf_filename', 'report.pdf'),
+                mime="application/pdf",
+                use_container_width=True,
+                type="primary"
+            )
 
         with btn_col2:
             if st.button("🔙 สร้างรายงานใหม่", use_container_width=True):
