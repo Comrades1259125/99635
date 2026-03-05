@@ -128,7 +128,7 @@ st.markdown(
         }
         .digital-clock .label { font-size: 0.45rem; letter-spacing: 2px; }
     }
-    # Hide Streamlit UI Elements
+    /* Hide Streamlit UI Elements */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -453,7 +453,7 @@ header[data-testid="stHeader"] { display: none !important; }
     st.markdown(f"""
     <div class="hero-carousel">
         <!-- Slide 1 -->
-        <div class="carousel-item active" style="background: radial-gradient(ellipse at 60% 40%, #0d2137 0%, #010305 70%), linear-gradient(135deg,#030812,#0a1f3a);">
+        <div class="carousel-item active" style="background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center;">
             <div style="position:absolute;inset:0;overflow:hidden;">
                 <div style="position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(88,166,255,0.12),transparent 70%);top:10%;left:60%;"></div>
                 <div style="position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(88,166,255,0.08),transparent 70%);bottom:15%;right:20%;"></div>
@@ -479,7 +479,7 @@ header[data-testid="stHeader"] { display: none !important; }
             </div>
         </div>
         <!-- Slide 2 -->
-        <div class="carousel-item" style="background: radial-gradient(ellipse at 30% 60%, #0f2a1a 0%, #010305 70%), linear-gradient(135deg,#020a04,#0a2a12);">
+        <div class="carousel-item" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop'); background-size: cover; background-position: center;">
             <div style="position:absolute;inset:0;overflow:hidden;">
                 <div style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(25,200,100,0.08),transparent 70%);top:-10%;right:10%;"></div>
                 <div style="position:absolute;top:55%;left:65%;width:2px;height:2px;background:white;border-radius:50%;opacity:0.6;"></div>
@@ -500,7 +500,7 @@ header[data-testid="stHeader"] { display: none !important; }
             </div>
         </div>
         <!-- Slide 3 -->
-        <div class="carousel-item" style="background: radial-gradient(ellipse at 70% 30%, #1f0d2a 0%, #010305 70%), linear-gradient(135deg,#06020a,#1a0a2a);">
+        <div class="carousel-item" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2022&auto=format&fit=crop'); background-size: cover; background-position: center;">
             <div style="position:absolute;inset:0;overflow:hidden;">
                 <div style="position:absolute;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(180,88,255,0.1),transparent 70%);top:-5%;right:5%;"></div>
                 <div style="position:absolute;top:35%;left:70%;width:2px;height:2px;background:white;border-radius:50%;opacity:0.7;"></div>
@@ -539,7 +539,7 @@ header[data-testid="stHeader"] { display: none !important; }
                 slides.forEach((s,j) => s.classList.toggle('active', j===i));
                 current = i;
             }}
-            setInterval(() => show((current+1)%n), 5000);
+            setInterval(() => show((current+1)%n), 10000);
         }})();
     </script>
     """, unsafe_allow_html=True)

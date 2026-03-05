@@ -26,34 +26,34 @@ class _MissionPDF(FPDF):
         super().__init__(*args, **kwargs)
         self.sat_name = sat_name
         self.archive_id = archive_id
-        # Register Unicode font — try multiple platforms
+        # Register Unicode font from local fonts directory
         self._has_unicode_font = False
-        import sys
-        font_candidates = []
-        if sys.platform == "win32":
-            font_candidates = [
-                (r"C:\Windows\Fonts\tahoma.ttf", r"C:\Windows\Fonts\tahomabd.ttf"),
-                (r"C:\Windows\Fonts\arial.ttf", r"C:\Windows\Fonts\arialbd.ttf"),
-            ]
-        elif sys.platform == "darwin":
-            font_candidates = [
-                ("/Library/Fonts/Arial Unicode.ttf", "/Library/Fonts/Arial Unicode.ttf"),
-                ("/System/Library/Fonts/Helvetica.ttc", "/System/Library/Fonts/Helvetica.ttc"),
-            ]
-        else:  # Linux
-            font_candidates = [
-                ("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),
-                ("/usr/share/fonts/truetype/freefont/FreeSans.ttf", "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf"),
-            ]
-        for regular, bold in font_candidates:
+        font_dir = os.path.join(os.path.dirname(__file__), "fonts")
+        regular_path = os.path.join(font_dir, "NotoSansThai-Regular.ttf")
+        bold_path = os.path.join(font_dir, "NotoSansThai-Bold.ttf")
+
+        if os.path.exists(regular_path) and os.path.exists(bold_path):
             try:
-                self.add_font("UniFont", "", regular)
-                self.add_font("UniFont", "B", bold)
-                self.add_font("UniFont", "I", regular)  # fallback italic
+                self.add_font("UniFont", "", regular_path)
+                self.add_font("UniFont", "B", bold_path)
+                self.add_font("UniFont", "I", regular_path)  # fallback italic
                 self._has_unicode_font = True
-                break
-            except Exception:
-                continue
+            except Exception as e:
+                st.error(f"Error loading fonts: {e}")
+        else:
+            # Fallback to system fonts if local fonts missing
+            import sys
+            font_candidates = []
+            if sys.platform == "win32":
+                font_candidates = [(r"C:\Windows\Fonts\tahoma.ttf", r"C:\Windows\Fonts\tahomabd.ttf")]
+            for regular, bold in font_candidates:
+                try:
+                    self.add_font("UniFont", "", regular)
+                    self.add_font("UniFont", "B", bold)
+                    self._has_unicode_font = True
+                    break
+                except Exception:
+                    continue
 
     def _font(self, style="", size=8):
         """Set font - always uses Unicode font when available."""
