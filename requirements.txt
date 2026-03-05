@@ -1,0 +1,11 @@
+streamlit
+plotly
+pandas
+skyfield
+fpdf2
+pypdf
+qrcode[pil]
+Pillow
+streamlit-autorefresh
+openpyxl
+kaleido
