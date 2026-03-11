@@ -28,7 +28,7 @@ TRANSLATIONS = {
     "orbit_types": {"en": "ORBIT TYPES", "th": "ประเภทวงโคจร"},
     "satellite_anatomy": {"en": "SATELLITE ANATOMY", "th": "กายวิภาคดาวเทียม"},
     "keplers_laws": {"en": "KEPLER'S LAWS", "th": "กฎของเคปเลอร์"},
-    "news_feed": {"en": "NARIT NEWS FEED", "th": "ข่าวสาร NARIT"},
+    "news_feed": {"en": "NEWS FEED", "th": "ข่าวสาร"},
     "the_portal": {"en": "THE PORTAL", "th": "THE PORTAL"},
     "portal_subtitle": {
         "en": "Secure entry point to the satellite telemetry dashboard.",

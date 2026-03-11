@@ -184,33 +184,66 @@ def render_knowledge_hub():
 
 def render_news_feed(content):
     news = content.get("news", [])
+    if not news:
+        return
+
     st.markdown(
         f'<h3 style="color:#58a6ff;font-family:\'Orbitron\',sans-serif;border-bottom:1px solid rgba(88,166,255,0.2);padding-bottom:10px;margin-bottom:20px;margin-top:40px;">{t("news_feed")}</h3>',
         unsafe_allow_html=True,
     )
 
-    items_html = ""
-    for n in news:
-        tag = _l(n, "tag")
-        items_html += (
-            '<div class="gw-news-item">'
-            f'<div class="gw-news-date">{n.get("date", "")} | {tag}</div>'
-            f'<h4 class="gw-news-title">{_l(n, "title")}</h4>'
-            f'<div class="gw-news-desc">{_l(n, "desc")}</div>'
+    n_slides = len(news)
+    total_dur = n_slides * 10  # 10s per slide
+
+    # Build keyframes: each slide gets ~10s visible with 1s fade transitions
+    # Pattern per slide: fade-in 1s -> hold 8s -> fade-out 1s
+    keyframes = '@keyframes gw-fade{'
+    for i in range(n_slides):
+        pct_start = (i * 100) / n_slides
+        pct_fade_in = pct_start + (1 / total_dur * 100)
+        pct_hold_end = ((i + 1) * 100) / n_slides - (1 / total_dur * 100)
+        pct_end = ((i + 1) * 100) / n_slides
+        if i == 0:
+            keyframes += f'0%{{opacity:1}}'
+        keyframes += f'{pct_fade_in:.1f}%{{opacity:1}}'
+        keyframes += f'{pct_hold_end:.1f}%{{opacity:1}}'
+        keyframes += f'{pct_end:.1f}%{{opacity:0}}'
+    keyframes += '100%{opacity:0}}'
+
+    # Build slide HTML
+    slides_html = ''
+    for i, n in enumerate(news):
+        tag = _l(n, 'tag')
+        img = n.get('image_url', '')
+        bg_style = f'background-image:linear-gradient(to bottom,rgba(13,17,23,0.3),rgba(13,17,23,0.95)),url({img});background-size:cover;background-position:center;' if img else 'background:linear-gradient(135deg,#111b2b,#1a1030);'
+        delay = i * 10
+        slides_html += (
+            f'<div class="gw-hero-slide" style="{bg_style}animation-delay:{delay}s;">'
+            f'<div class="gw-hero-tag">{n.get("date", "")} | {tag}</div>'
+            f'<div class="gw-hero-title">{_l(n, "title")}</div>'
+            f'<div class="gw-hero-desc">{_l(n, "desc")}</div>'
             '</div>'
         )
 
+    # Indicator dots
+    dots = ''.join(f'<span class="gw-hero-dot" style="animation-delay:{i*10}s;"></span>' for i in range(n_slides))
+
     html = (
         '<style>'
-        '@keyframes gw-scroll{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}'
-        '.gw-news-item{padding:15px 20px;border-bottom:1px solid rgba(255,255,255,0.05)}'
-        '.gw-news-date{color:#58a6ff;font-size:0.75rem;font-family:monospace;margin-bottom:5px}'
-        '.gw-news-title{color:#c9d1d9;font-size:0.95rem;font-weight:600;margin:0}'
-        '.gw-news-desc{color:#8b949e;font-size:0.85rem;margin-top:5px;line-height:1.4}'
+        f'{keyframes}'
+        f'@keyframes gw-dot{{0%,{100/n_slides:.1f}%{{background:#58a6ff;transform:scale(1.3)}}'
+        f'{100/n_slides + 1:.1f}%,100%{{background:rgba(255,255,255,0.3);transform:scale(1)}}}}'
+        '.gw-hero-wrap{position:relative;width:100%;height:280px;border-radius:12px;overflow:hidden;margin-bottom:10px}'
+        f'.gw-hero-slide{{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;animation:gw-fade {total_dur}s infinite;display:flex;flex-direction:column;justify-content:flex-end;padding:30px;box-sizing:border-box;border-radius:12px}}'
+        '.gw-hero-slide:first-child{opacity:1}'
+        '.gw-hero-tag{color:#58a6ff;font-size:0.75rem;font-family:monospace;letter-spacing:1px;margin-bottom:8px}'
+        '.gw-hero-title{color:#fff;font-size:1.4rem;font-weight:700;font-family:"Orbitron",sans-serif;margin-bottom:8px;line-height:1.3}'
+        '.gw-hero-desc{color:#a0aec0;font-size:0.9rem;line-height:1.5;max-width:90%}'
+        '.gw-hero-dots{display:flex;justify-content:center;gap:8px;margin-top:8px}'
+        f'.gw-hero-dot{{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);animation:gw-dot {total_dur}s infinite;transition:all 0.3s}}'
         '</style>'
-        '<div style="background:#161b22;border:1px solid rgba(88,166,255,0.1);border-radius:8px;overflow:hidden;height:250px;position:relative;">'
-        f'<div style="animation:gw-scroll 30s linear infinite;position:absolute;width:100%;top:0;">{items_html}{items_html}</div>'
-        '</div>'
+        f'<div class="gw-hero-wrap">{slides_html}</div>'
+        f'<div class="gw-hero-dots">{dots}</div>'
     )
     st.markdown(html, unsafe_allow_html=True)
 
@@ -263,7 +296,7 @@ def _admin_content_editor():
                 st.rerun()
 
     with tab_news:
-        st.markdown("#### " + t("news_feed"))
+        st.markdown("#### " + t("news_feed") + " (Hero Carousel)")
         for i, n in enumerate(content.get("news", [])):
             with st.expander(f"{n.get('date', '')} — {n.get('title_en', '')}"):
                 n["date"] = st.text_input("Date", n.get("date", ""), key=f"news_d_{i}")
@@ -273,6 +306,8 @@ def _admin_content_editor():
                 n["title_th"] = st.text_input("Title (TH)", n.get("title_th", ""), key=f"news_nt_{i}")
                 n["desc_en"] = st.text_area("Desc (EN)", n.get("desc_en", ""), key=f"news_de_{i}")
                 n["desc_th"] = st.text_area("Desc (TH)", n.get("desc_th", ""), key=f"news_dt_{i}")
+                n["image_url"] = st.text_input("Image URL", n.get("image_url", ""), key=f"news_img_{i}",
+                    help="Background image URL for this carousel slide (optional)")
                 if st.button(t("delete"), key=f"news_del_{i}"):
                     content["news"].pop(i)
                     _save_content(content)
@@ -287,12 +322,15 @@ def _admin_content_editor():
         nn_nt = st.text_input("Title (TH)", key="new_news_nt")
         nn_de = st.text_area("Desc (EN)", key="new_news_de")
         nn_dt = st.text_area("Desc (TH)", key="new_news_dt")
+        nn_img = st.text_input("Image URL", key="new_news_img",
+            help="Background image URL for this carousel slide (optional)")
         if st.button(t("save"), key="save_new_news"):
             if nn_date and nn_ne:
                 content["news"].insert(0, {
                     "date": nn_date, "tag_en": nn_te, "tag_th": nn_tt,
                     "title_en": nn_ne, "title_th": nn_nt,
                     "desc_en": nn_de, "desc_th": nn_dt,
+                    "image_url": nn_img,
                 })
                 _save_content(content)
                 st.success(t("content_saved"))
