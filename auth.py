@@ -36,9 +36,14 @@ def _hash_password(password: str) -> str:
 
 def is_admin(email: str) -> bool:
     """Check if the given email is an admin."""
+    # Hardcoded fallback admin list (works without secrets.toml)
+    FALLBACK_ADMINS = ["trinnapop8@gmail.com", "trinnapop23@gmail.com"]
+    email_lower = email.lower().strip()
+    if email_lower in FALLBACK_ADMINS:
+        return True
     try:
         admin_emails = st.secrets.get("admin", {}).get("emails", "")
-        return email.lower().strip() in [e.strip().lower() for e in admin_emails.split(",")]
+        return email_lower in [e.strip().lower() for e in admin_emails.split(",")]
     except Exception:
         return False
 

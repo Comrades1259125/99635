@@ -49,11 +49,37 @@ SATELLITE_CATALOG = {
 }
 
 def fetch_tle(sat_name: str, norad_id: str):
-    """Fetch TLE for a satellite from CelesTrak (with retry)."""
+    """Fetch TLE for a satellite from CelesTrak (with multiple fallbacks)."""
+    import urllib.request
+    ts = load.timescale()
     urls = [
         f"https://celestrak.org/NORAD/elements/gp.php?CATNR={norad_id}&FORMAT=TLE",
         f"https://celestrak.com/NORAD/elements/gp.php?CATNR={norad_id}&FORMAT=TLE",
     ]
+
+    # Method 1: Direct HTTP download + manual EarthSatellite construction
+    for url in urls:
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "SatTelemetry/1.0"})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                text = resp.read().decode("utf-8").strip()
+            lines = [l.strip() for l in text.splitlines() if l.strip()]
+            if len(lines) >= 3:
+                name_line = lines[0]
+                line1 = lines[1]
+                line2 = lines[2]
+                sat = EarthSatellite(line1, line2, name_line, ts)
+                if str(sat.model.satnum) == norad_id:
+                    return sat
+            elif len(lines) == 2:
+                sat = EarthSatellite(lines[0], lines[1], sat_name, ts)
+                if str(sat.model.satnum) == norad_id:
+                    return sat
+        except Exception as e:
+            print(f"Direct TLE fetch failed ({url}): {e}")
+            continue
+
+    # Method 2: Skyfield's built-in loader (fallback)
     for url in urls:
         try:
             stations = load.tle_file(url, reload=True)
@@ -61,8 +87,9 @@ def fetch_tle(sat_name: str, norad_id: str):
                 if str(sat.model.satnum) == norad_id:
                     return sat
         except Exception as e:
-            print(f"TLE fetch failed ({url}): {e}")
+            print(f"Skyfield TLE fetch failed ({url}): {e}")
             continue
+
     return None
 
 def compute_position(satellite: EarthSatellite, dt: datetime = None):

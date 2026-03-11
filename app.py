@@ -501,13 +501,21 @@ with st.sidebar:
         index=0,
     )
 
-    if st.session_state.selected_satellite != st.session_state.last_sat_name:
+    need_fetch = (
+        st.session_state.selected_satellite != st.session_state.last_sat_name
+        or st.session_state.satellite_obj is None
+    )
+    if need_fetch:
         with st.spinner(f"{t('fetching_tle')} {st.session_state.selected_satellite}..."):
             norad_id = SATELLITE_CATALOG[st.session_state.selected_satellite]
-            st.session_state.satellite_obj = fetch_tle(
-                st.session_state.selected_satellite, norad_id
-            )
-            st.session_state.last_sat_name = st.session_state.selected_satellite
+            sat_obj = fetch_tle(st.session_state.selected_satellite, norad_id)
+            if sat_obj is not None:
+                st.session_state.satellite_obj = sat_obj
+                st.session_state.last_sat_name = st.session_state.selected_satellite
+            else:
+                st.error(f"⚠️ Failed to fetch TLE for {st.session_state.selected_satellite}")
+                if st.button("🔄 Retry", key="retry_tle"):
+                    st.rerun()
 
     st.markdown("---")
     st.markdown(f"### {t('station_info')}")
