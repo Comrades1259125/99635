@@ -11,21 +11,46 @@ import streamlit as st
 import urllib.request
 import urllib.parse
 
-USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
+_DEPLOY_USERS = os.path.join(os.path.dirname(__file__), "users.json")
+
+
+def _writable_path(filename: str, deploy_path: str) -> str:
+    """Return a writable copy of the file. On Streamlit Cloud (Linux) the app
+    directory is read-only, so we copy the deployed file to /tmp/ on first use."""
+    import platform
+    if platform.system() == "Windows":
+        return deploy_path  # Local dev — writable directly
+    tmp_path = os.path.join("/tmp", filename)
+    if not os.path.exists(tmp_path) and os.path.exists(deploy_path):
+        import shutil
+        shutil.copy2(deploy_path, tmp_path)
+    return tmp_path
+
+
+def _users_file() -> str:
+    return _writable_path("users.json", _DEPLOY_USERS)
 
 
 def _load_users() -> dict:
     """Load users from JSON file."""
-    if os.path.exists(USERS_FILE):
-        with open(USERS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+    path = _users_file()
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return {}
     return {}
 
 
 def _save_users(users: dict):
     """Save users to JSON file."""
-    with open(USERS_FILE, "w", encoding="utf-8") as f:
-        json.dump(users, f, indent=2, ensure_ascii=False)
+    path = _users_file()
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(users, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error saving users: {e}")
 
 
 def _hash_password(password: str) -> str:

@@ -13,26 +13,38 @@ from auth import (
     login_user, register_user, social_login,
     google_auth_url, google_handle_callback,
     facebook_auth_url, facebook_handle_callback,
-    is_admin,
+    is_admin, _writable_path,
 )
 
-CONTENT_FILE = os.path.join(os.path.dirname(__file__), "gateway_content.json")
+_DEPLOY_CONTENT = os.path.join(os.path.dirname(__file__), "gateway_content.json")
 
 
 # ═══════════════════════════════════════════════════════════════════════
 #  Content CRUD helpers
 # ═══════════════════════════════════════════════════════════════════════
 
+def _content_file() -> str:
+    return _writable_path("gateway_content.json", _DEPLOY_CONTENT)
+
+
 def _load_content() -> dict:
-    if os.path.exists(CONTENT_FILE):
-        with open(CONTENT_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+    path = _content_file()
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
     return {"banner": {}, "calendar": [], "news": [], "articles": []}
 
 
 def _save_content(data: dict):
-    with open(CONTENT_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    path = _content_file()
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        st.error(f"Error saving content: {e}")
 
 
 def _l(item: dict, field: str) -> str:
