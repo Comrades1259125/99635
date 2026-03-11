@@ -49,17 +49,20 @@ SATELLITE_CATALOG = {
 }
 
 def fetch_tle(sat_name: str, norad_id: str):
-    """Fetch TLE for a satellite from CelesTrak."""
-    try:
-        # Construct URL for CelesTrak TLE
-        url = f"https://celestrak.org/NORAD/elements/gp.php?CATNR={norad_id}&FORMAT=TLE"
-        stations = load.tle_file(url)
-        # Find the satellite in the loaded file
-        for sat in stations:
-            if str(sat.model.satnum) == norad_id:
-                return sat
-    except Exception as e:
-        print(f"Error fetching TLE: {e}")
+    """Fetch TLE for a satellite from CelesTrak (with retry)."""
+    urls = [
+        f"https://celestrak.org/NORAD/elements/gp.php?CATNR={norad_id}&FORMAT=TLE",
+        f"https://celestrak.com/NORAD/elements/gp.php?CATNR={norad_id}&FORMAT=TLE",
+    ]
+    for url in urls:
+        try:
+            stations = load.tle_file(url, reload=True)
+            for sat in stations:
+                if str(sat.model.satnum) == norad_id:
+                    return sat
+        except Exception as e:
+            print(f"TLE fetch failed ({url}): {e}")
+            continue
     return None
 
 def compute_position(satellite: EarthSatellite, dt: datetime = None):

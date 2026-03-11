@@ -501,14 +501,34 @@ def show_public_page():
     # The Portal (Auth)
     render_portal()
 
-    # Admin edit button (only for admin users)
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    admin_email = st.session_state.get("user_email", "")
-    if admin_email and is_admin(admin_email):
-        if st.button(t("admin_panel"), use_container_width=True):
-            _show_admin_dialog()
+    # ── Admin Section — direct admin access on gateway ──
+    st.markdown('<br><br>', unsafe_allow_html=True)
+    with st.expander("⚙️ " + t("admin_panel"), expanded=False):
+        if st.session_state.get("_gw_admin_unlocked"):
+            _admin_content_editor()
+            if st.button("🔒 Lock Admin", key="lock_admin_gw"):
+                st.session_state["_gw_admin_unlocked"] = False
+                st.rerun()
+        else:
+            st.markdown(f"**{t('commander_access')}**")
+            adm_email = st.text_input(t("email"), key="admin_gw_email", placeholder="admin@email.com")
+            adm_pass = st.text_input(t("password"), type="password", key="admin_gw_pass")
+            if st.button("🔓 " + t("authenticate"), key="admin_gw_auth", use_container_width=True, type="primary"):
+                if adm_email and adm_pass:
+                    ok, name, msg = login_user(adm_email, adm_pass)
+                    if ok and is_admin(adm_email):
+                        st.session_state["_gw_admin_unlocked"] = True
+                        st.session_state.user_email = adm_email.lower().strip()
+                        st.rerun()
+                    elif ok:
+                        st.error("This account is not an admin.")
+                    else:
+                        st.error(msg)
+                else:
+                    st.warning(t("enter_credentials"))
 
 
 @st.dialog("Admin: Edit Gateway Content", width="large")
 def _show_admin_dialog():
     _admin_content_editor()
+
