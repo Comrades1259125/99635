@@ -12,8 +12,8 @@ import io as _io
 
 from report_engine import generate_pdf
 from email_sender import send_pdf_email
-from gateway import show_public_page
-from auth import register_user, login_user, social_login
+from gateway import show_public_page, _admin_content_editor
+from auth import register_user, login_user, social_login, is_admin
 from i18n import t, lang_selector
 from satellite_data import (
     SATELLITE_CATALOG, fetch_tle, compute_position,
@@ -100,8 +100,12 @@ if not st.session_state.dark_mode:
     )
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PRE-LOGIN PUBLIC PAGE — NARIT-inspired design (Moved to gateway.py)
+# PRE-LOGIN PUBLIC PAGE — (Moved to gateway.py)
 # ─────────────────────────────────────────────────────────────────────────────
+
+@st.dialog("Admin: Edit Gateway Content", width="large")
+def _open_admin_dialog():
+    _admin_content_editor()
 
 
 # =============================================================================
@@ -675,6 +679,13 @@ with st.sidebar:
                 st.caption(t("no_passes"))
         else:
             st.caption(t("load_sat_first"))
+
+    # ── Admin: Gateway Editor ──
+    if st.session_state.user_email and is_admin(st.session_state.user_email):
+        st.markdown("---")
+        st.markdown(f"### {t('admin_panel')}")
+        if st.button("⚙️ " + t("admin_panel"), use_container_width=True, key="sidebar_admin_btn"):
+            _open_admin_dialog()
 
     # ── User Status ──
     st.markdown("---")
