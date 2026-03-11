@@ -66,103 +66,36 @@ for key, default in {
 
 # ─── Custom CSS + Responsive Design ─────────────────────────────────────────────
 st.markdown(
-    """
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-    .stApp { background-color: #0e1117; }
-    .digital-clock {
-        text-align: center; font-family: 'Courier New', monospace;
-        font-size: 2.6rem; font-weight: 900; color: #ffffff;
-        background: linear-gradient(145deg, #1a1d23, #22262e);
-        border: 2px solid rgba(255,255,255,0.15); border-radius: 18px;
-        padding: 14px 32px; margin: 0 auto 18px auto; max-width: 520px;
-        letter-spacing: 4px; box-shadow: 0 0 25px rgba(0,200,255,0.08);
-    }
-    .digital-clock .label {
-        font-size: 0.65rem; letter-spacing: 6px;
-        color: rgba(255,255,255,0.45); display: block; margin-bottom: 2px;
-    }
-    .map-card {
-        background: #161b22; border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 12px; padding: 8px; margin-bottom: 8px;
-    }
-    .map-card-title {
-        color: #58a6ff; font-size: 0.85rem; font-weight: 700;
-        padding: 4px 8px; letter-spacing: 1px;
-    }
-    section[data-testid="stSidebar"] { background: #161b22; }
-    section[data-testid="stSidebar"] .stTextInput label,
-    section[data-testid="stSidebar"] .stMarkdown { color: #c9d1d9 !important; }
-    .telemetry-header {
-        color: #58a6ff; font-size: 1rem; font-weight: 700;
-        letter-spacing: 2px; margin-top: 20px; margin-bottom: 6px;
-    }
-
-
-    @media (max-width: 1024px) {
-        .digital-clock {
-            font-size: 2rem; padding: 10px 20px;
-            max-width: 400px; letter-spacing: 2px;
-        }
-        .digital-clock .label { font-size: 0.55rem; letter-spacing: 4px; }
-        .map-card { padding: 4px; margin-bottom: 4px; border-radius: 8px; }
-        .map-card-title { font-size: 0.75rem; padding: 2px 6px; }
-        .telemetry-header { font-size: 0.85rem; letter-spacing: 1px; }
-    }
-
-
-    @media (max-width: 768px) {
-        .digital-clock {
-            font-size: 1.4rem; padding: 8px 12px;
-            max-width: 300px; letter-spacing: 1px;
-            border-radius: 12px;
-        }
-        .digital-clock .label { font-size: 0.5rem; letter-spacing: 3px; }
-        .map-card { padding: 2px; margin-bottom: 2px; border-radius: 6px; }
-        .map-card-title { font-size: 0.65rem; padding: 2px 4px; letter-spacing: 0; }
-        .telemetry-header { font-size: 0.75rem; letter-spacing: 0; margin-top: 10px; }
-        .stDataFrame { overflow-x: auto; }
-    }
-
-
-    @media (max-width: 480px) {
-        .digital-clock {
-            font-size: 1.1rem; padding: 6px 8px;
-            max-width: 260px; letter-spacing: 0;
-        }
-        .digital-clock .label { font-size: 0.45rem; letter-spacing: 2px; }
-    }
-    /* Hide Streamlit UI Elements */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    </style>
-    """,
+    '<style>'
+    '.stApp{background-color:#0e1117}'
+    '.digital-clock{text-align:center;font-family:"Courier New",monospace;font-size:2.6rem;font-weight:900;color:#fff;background:linear-gradient(145deg,#1a1d23,#22262e);border:2px solid rgba(255,255,255,0.15);border-radius:18px;padding:14px 32px;margin:0 auto 18px auto;max-width:520px;letter-spacing:4px;box-shadow:0 0 25px rgba(0,200,255,0.08)}'
+    '.digital-clock .label{font-size:0.65rem;letter-spacing:6px;color:rgba(255,255,255,0.45);display:block;margin-bottom:2px}'
+    '.map-card{background:#161b22;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:8px;margin-bottom:8px}'
+    '.map-card-title{color:#58a6ff;font-size:0.85rem;font-weight:700;padding:4px 8px;letter-spacing:1px}'
+    'section[data-testid="stSidebar"]{background:#161b22}'
+    'section[data-testid="stSidebar"] .stTextInput label,section[data-testid="stSidebar"] .stMarkdown{color:#c9d1d9!important}'
+    '.telemetry-header{color:#58a6ff;font-size:1rem;font-weight:700;letter-spacing:2px;margin-top:20px;margin-bottom:6px}'
+    '@media(max-width:1024px){.digital-clock{font-size:2rem;padding:10px 20px;max-width:400px;letter-spacing:2px}.digital-clock .label{font-size:0.55rem;letter-spacing:4px}.map-card{padding:4px;margin-bottom:4px;border-radius:8px}.map-card-title{font-size:0.75rem;padding:2px 6px}.telemetry-header{font-size:0.85rem;letter-spacing:1px}}'
+    '@media(max-width:768px){.digital-clock{font-size:1.4rem;padding:8px 12px;max-width:300px;letter-spacing:1px;border-radius:12px}.digital-clock .label{font-size:0.5rem;letter-spacing:3px}.map-card{padding:2px;margin-bottom:2px;border-radius:6px}.map-card-title{font-size:0.65rem;padding:2px 4px;letter-spacing:0}.telemetry-header{font-size:0.75rem;letter-spacing:0;margin-top:10px}.stDataFrame{overflow-x:auto}}'
+    '@media(max-width:480px){.digital-clock{font-size:1.1rem;padding:6px 8px;max-width:260px;letter-spacing:0}.digital-clock .label{font-size:0.45rem;letter-spacing:2px}}'
+    '#MainMenu{visibility:hidden}footer{visibility:hidden}header{visibility:hidden}'
+    '</style>',
     unsafe_allow_html=True,
 )
+
 
 # Light Mode override
 if not st.session_state.dark_mode:
     st.markdown(
-        """
-        <style>
-        .stApp { background-color: #f5f5f5 !important; color: #333 !important; }
-        .digital-clock {
-            background: linear-gradient(145deg, #e8e8e8, #ffffff) !important;
-            border: 2px solid rgba(0,0,0,0.1) !important;
-            color: #222 !important;
-            box-shadow: 0 0 25px rgba(0,0,0,0.05) !important;
-        }
-        .digital-clock .label { color: rgba(0,0,0,0.45) !important; }
-        .map-card {
-            background: #ffffff !important;
-            border: 1px solid rgba(0,0,0,0.1) !important;
-        }
-        .map-card-title { color: #1a73e8 !important; }
-        .telemetry-header { color: #1a73e8 !important; }
-        section[data-testid="stSidebar"] { background: #ffffff !important; }
-        </style>
-        """,
+        '<style>'
+        '.stApp{background-color:#f5f5f5!important;color:#333!important}'
+        '.digital-clock{background:linear-gradient(145deg,#e8e8e8,#fff)!important;border:2px solid rgba(0,0,0,0.1)!important;color:#222!important;box-shadow:0 0 25px rgba(0,0,0,0.05)!important}'
+        '.digital-clock .label{color:rgba(0,0,0,0.45)!important}'
+        '.map-card{background:#fff!important;border:1px solid rgba(0,0,0,0.1)!important}'
+        '.map-card-title{color:#1a73e8!important}'
+        '.telemetry-header{color:#1a73e8!important}'
+        'section[data-testid="stSidebar"]{background:#fff!important}'
+        '</style>',
         unsafe_allow_html=True,
     )
 

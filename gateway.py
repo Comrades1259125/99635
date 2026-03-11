@@ -75,7 +75,8 @@ def _handle_oauth_callback():
 
 
 # ═══════════════════════════════════════════════════════════════════════
-#  Section Renderers
+#  Section Renderers  (NO leading whitespace in HTML — prevents
+#  Streamlit markdown from treating indented HTML as code blocks)
 # ═══════════════════════════════════════════════════════════════════════
 
 def render_banner(content):
@@ -85,147 +86,151 @@ def render_banner(content):
     desc = _l(banner, "desc") or ""
     status = _l(banner, "status") or "🟢"
 
-    st.markdown(f"""
-    <div style="background: linear-gradient(90deg, #111b2b, #1a2842); padding: 20px; border-radius: 12px;
-                border-left: 5px solid #58a6ff; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <div style="background: rgba(88,166,255,0.2); padding: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <span style="font-size: 1.5rem; color: #58a6ff;">{icon}</span>
-            </div>
-            <div>
-                <h3 style="margin: 0; color: #fff; font-family: 'Orbitron', sans-serif; letter-spacing: 1px;">
-                    {t("active_event")}: {title}</h3>
-                <p style="margin: 5px 0 0 0; color: #a5d8ff; font-size: 0.9rem;">{desc}</p>
-            </div>
-        </div>
-        <div style="text-align: right; color: rgba(255,255,255,0.5); font-size: 0.8rem;">
-            <div>{t("current_status")}</div>
-            <div style="color: #4CAF50; font-weight: bold;">{status}</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    html = (
+        '<div style="background:linear-gradient(90deg,#111b2b,#1a2842);padding:20px;border-radius:12px;'
+        'border-left:5px solid #58a6ff;margin-bottom:25px;display:flex;align-items:center;justify-content:space-between;">'
+        '<div style="display:flex;align-items:center;gap:15px;">'
+        '<div style="background:rgba(88,166,255,0.2);padding:10px;border-radius:50%;display:flex;align-items:center;justify-content:center;">'
+        f'<span style="font-size:1.5rem;color:#58a6ff;">{icon}</span></div>'
+        '<div>'
+        f'<h3 style="margin:0;color:#fff;font-family:\'Orbitron\',sans-serif;letter-spacing:1px;">{t("active_event")}: {title}</h3>'
+        f'<p style="margin:5px 0 0 0;color:#a5d8ff;font-size:0.9rem;">{desc}</p>'
+        '</div></div>'
+        '<div style="text-align:right;color:rgba(255,255,255,0.5);font-size:0.8rem;">'
+        f'<div>{t("current_status")}</div>'
+        f'<div style="color:#4CAF50;font-weight:bold;">{status}</div>'
+        '</div></div>'
+    )
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_calendar(content):
     events = content.get("calendar", [])
-    st.markdown(f"""
-    <h3 style="color: #58a6ff; font-family: 'Orbitron', sans-serif; border-bottom: 1px solid rgba(88, 166, 255, 0.2);
-               padding-bottom: 10px; margin-bottom: 20px;">{t("calendar_title")}</h3>
-    """, unsafe_allow_html=True)
 
-    # Build table rows
+    # Title
+    st.markdown(
+        f'<h3 style="color:#58a6ff;font-family:\'Orbitron\',sans-serif;border-bottom:1px solid rgba(88,166,255,0.2);padding-bottom:10px;margin-bottom:20px;">{t("calendar_title")}</h3>',
+        unsafe_allow_html=True,
+    )
+
+    # Build rows (no indentation)
     rows = ""
     for ev in events:
-        rows += f"""
-        <tr>
-            <td class="cal-date">{ev.get('date','')}</td>
-            <td><strong>{_l(ev, 'name')}</strong></td>
-            <td><span class="cal-type {ev.get('category_class','')}">{ev.get('category','')}</span></td>
-            <td>{_l(ev, 'detail')}</td>
-        </tr>"""
+        rows += (
+            '<tr>'
+            f'<td class="cal-date">{ev.get("date", "")}</td>'
+            f'<td><strong>{_l(ev, "name")}</strong></td>'
+            f'<td><span class="cal-type {ev.get("category_class", "")}">{ev.get("category", "")}</span></td>'
+            f'<td>{_l(ev, "detail")}</td>'
+            '</tr>'
+        )
 
-    st.markdown(f"""
-    <style>
-    .cal-table {{ width: 100%; border-collapse: collapse; margin-bottom: 30px; font-family: 'Inter', sans-serif; font-size: 0.9rem; }}
-    .cal-table th {{ text-align: left; padding: 12px 15px; border-bottom: 2px solid rgba(88,166,255,0.3); color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }}
-    .cal-table td {{ padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #c9d1d9; }}
-    .cal-table tr:hover td {{ background: rgba(88,166,255,0.05); }}
-    .cal-date {{ font-family: 'Orbitron', monospace; color: #58a6ff; font-weight: 700; width: 120px; }}
-    .cal-type {{ display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }}
-    .type-eclipse {{ background: rgba(255, 87, 34, 0.2); color: #FF5722; border: 1px solid rgba(255, 87, 34, 0.5); }}
-    .type-equinox {{ background: rgba(76, 175, 80, 0.2); color: #4CAF50; border: 1px solid rgba(76, 175, 80, 0.5); }}
-    .type-meteor {{ background: rgba(3, 169, 244, 0.2); color: #03A9F4; border: 1px solid rgba(3, 169, 244, 0.5); }}
-    </style>
-    <table class="cal-table">
-        <tr>
-            <th>{t("date")}</th>
-            <th>{t("event_name")}</th>
-            <th>{t("category")}</th>
-            <th>{t("visibility_detail")}</th>
-        </tr>
-        {rows}
-    </table>
-    """, unsafe_allow_html=True)
+    # Style + Table (no leading whitespace!)
+    html = (
+        '<style>'
+        '.cal-table{width:100%;border-collapse:collapse;margin-bottom:30px;font-family:"Inter",sans-serif;font-size:0.9rem}'
+        '.cal-table th{text-align:left;padding:12px 15px;border-bottom:2px solid rgba(88,166,255,0.3);color:#8b949e;text-transform:uppercase;letter-spacing:1px}'
+        '.cal-table td{padding:15px;border-bottom:1px solid rgba(255,255,255,0.05);color:#c9d1d9}'
+        '.cal-table tr:hover td{background:rgba(88,166,255,0.05)}'
+        '.cal-date{font-family:"Orbitron",monospace;color:#58a6ff;font-weight:700;width:120px}'
+        '.cal-type{display:inline-block;padding:3px 8px;border-radius:4px;font-size:0.7rem;font-weight:600}'
+        '.type-eclipse{background:rgba(255,87,34,0.2);color:#FF5722;border:1px solid rgba(255,87,34,0.5)}'
+        '.type-equinox{background:rgba(76,175,80,0.2);color:#4CAF50;border:1px solid rgba(76,175,80,0.5)}'
+        '.type-meteor{background:rgba(3,169,244,0.2);color:#03A9F4;border:1px solid rgba(3,169,244,0.5)}'
+        '</style>'
+        '<table class="cal-table">'
+        f'<tr><th>{t("date")}</th><th>{t("event_name")}</th><th>{t("category")}</th><th>{t("visibility_detail")}</th></tr>'
+        f'{rows}'
+        '</table>'
+    )
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_knowledge_hub():
-    st.markdown(f'<h3 style="color: #58a6ff; font-family: \'Orbitron\', sans-serif; border-bottom: 1px solid rgba(88,166,255,0.2); padding-bottom: 10px; margin-bottom: 20px; margin-top: 40px;">{t("astronomy_101")}</h3>', unsafe_allow_html=True)
+    st.markdown(
+        f'<h3 style="color:#58a6ff;font-family:\'Orbitron\',sans-serif;border-bottom:1px solid rgba(88,166,255,0.2);padding-bottom:10px;margin-bottom:20px;margin-top:40px;">{t("astronomy_101")}</h3>',
+        unsafe_allow_html=True,
+    )
 
     col1, col2, col3 = st.columns(3)
-    card = """
-        <div style="background: rgba(22,27,34,0.6); border: 1px solid rgba(88,166,255,0.15); border-radius: 12px; padding: 25px; height: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
-            <div style="font-size: 2rem; margin-bottom: 15px;">{icon}</div>
-            <h4 style="color: #fff; font-family: 'Orbitron', monospace; margin-top: 0; margin-bottom: 15px; font-size: 1.1rem;">{title}</h4>
-            <p style="color: #8b949e; font-size: 0.9rem; line-height: 1.6;">{body}</p>
-        </div>
-    """
+
+    def _card(icon, title, body):
+        return (
+            '<div style="background:rgba(22,27,34,0.6);border:1px solid rgba(88,166,255,0.15);border-radius:12px;padding:25px;height:100%;box-shadow:0 4px 20px rgba(0,0,0,0.2);">'
+            f'<div style="font-size:2rem;margin-bottom:15px;">{icon}</div>'
+            f'<h4 style="color:#fff;font-family:\'Orbitron\',monospace;margin-top:0;margin-bottom:15px;font-size:1.1rem;">{title}</h4>'
+            f'<p style="color:#8b949e;font-size:0.9rem;line-height:1.6;">{body}</p>'
+            '</div>'
+        )
 
     with col1:
-        st.markdown(card.format(
-            icon="🌍", title=t("orbit_types"),
-            body=f"{t('orbit_leo')}<br><br>{t('orbit_meo')}<br><br>{t('orbit_geo')}",
+        st.markdown(_card(
+            "🌍", t("orbit_types"),
+            f'{t("orbit_leo")}<br><br>{t("orbit_meo")}<br><br>{t("orbit_geo")}',
         ), unsafe_allow_html=True)
 
     with col2:
-        st.markdown(card.format(
-            icon="🛰️", title=t("satellite_anatomy"),
-            body=f"{t('sat_payload')}<br><br>{t('sat_bus')}<br><br>{t('sat_solar')}<br><br>{t('sat_attitude')}",
+        st.markdown(_card(
+            "🛰️", t("satellite_anatomy"),
+            f'{t("sat_payload")}<br><br>{t("sat_bus")}<br><br>{t("sat_solar")}<br><br>{t("sat_attitude")}',
         ), unsafe_allow_html=True)
 
     with col3:
-        st.markdown(card.format(
-            icon="📐", title=t("keplers_laws"),
-            body=f"{t('kepler_1')}<br><br>{t('kepler_2')}<br><br>{t('kepler_3')}",
+        st.markdown(_card(
+            "📐", t("keplers_laws"),
+            f'{t("kepler_1")}<br><br>{t("kepler_2")}<br><br>{t("kepler_3")}',
         ), unsafe_allow_html=True)
 
 
 def render_news_feed(content):
     news = content.get("news", [])
-    st.markdown(f'<h3 style="color: #58a6ff; font-family: \'Orbitron\', sans-serif; border-bottom: 1px solid rgba(88,166,255,0.2); padding-bottom: 10px; margin-bottom: 20px; margin-top: 40px;">{t("news_feed")}</h3>', unsafe_allow_html=True)
+    st.markdown(
+        f'<h3 style="color:#58a6ff;font-family:\'Orbitron\',sans-serif;border-bottom:1px solid rgba(88,166,255,0.2);padding-bottom:10px;margin-bottom:20px;margin-top:40px;">{t("news_feed")}</h3>',
+        unsafe_allow_html=True,
+    )
 
     items_html = ""
     for n in news:
         tag = _l(n, "tag")
-        items_html += f"""
-        <div class="news-item">
-            <div class="news-date">{n.get('date','')} | {tag}</div>
-            <h4 class="news-title">{_l(n, 'title')}</h4>
-            <div class="news-desc">{_l(n, 'desc')}</div>
-        </div>"""
+        items_html += (
+            '<div class="gw-news-item">'
+            f'<div class="gw-news-date">{n.get("date", "")} | {tag}</div>'
+            f'<h4 class="gw-news-title">{_l(n, "title")}</h4>'
+            f'<div class="gw-news-desc">{_l(n, "desc")}</div>'
+            '</div>'
+        )
 
-    st.markdown(f"""
-    <div style="background: #161b22; border: 1px solid rgba(88,166,255,0.1); border-radius: 8px; overflow: hidden; height: 250px; position: relative;">
-        <style>
-        @keyframes gw-scroll {{ 0% {{ transform: translateY(0); }} 100% {{ transform: translateY(-50%); }} }}
-        .news-item {{ padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }}
-        .news-date {{ color: #58a6ff; font-size: 0.75rem; font-family: monospace; margin-bottom: 5px; }}
-        .news-title {{ color: #c9d1d9; font-size: 0.95rem; font-weight: 600; margin: 0; }}
-        .news-desc {{ color: #8b949e; font-size: 0.85rem; margin-top: 5px; line-height: 1.4; }}
-        </style>
-        <div style="animation: gw-scroll 30s linear infinite; position: absolute; width: 100%; top: 0;">
-            {items_html}
-            {items_html}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    html = (
+        '<style>'
+        '@keyframes gw-scroll{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}'
+        '.gw-news-item{padding:15px 20px;border-bottom:1px solid rgba(255,255,255,0.05)}'
+        '.gw-news-date{color:#58a6ff;font-size:0.75rem;font-family:monospace;margin-bottom:5px}'
+        '.gw-news-title{color:#c9d1d9;font-size:0.95rem;font-weight:600;margin:0}'
+        '.gw-news-desc{color:#8b949e;font-size:0.85rem;margin-top:5px;line-height:1.4}'
+        '</style>'
+        '<div style="background:#161b22;border:1px solid rgba(88,166,255,0.1);border-radius:8px;overflow:hidden;height:250px;position:relative;">'
+        f'<div style="animation:gw-scroll 30s linear infinite;position:absolute;width:100%;top:0;">{items_html}{items_html}</div>'
+        '</div>'
+    )
+    st.markdown(html, unsafe_allow_html=True)
 
 
 # ═══════════════════════════════════════════════════════════════════════
 #  Admin Content Editor (dialog)
 # ═══════════════════════════════════════════════════════════════════════
 
-@st.dialog(t("admin_panel"), width="large")
-def admin_content_editor():
+def _admin_content_editor():
     content = _load_content()
     tab_cal, tab_news, tab_banner = st.tabs([t("add_event"), t("add_news"), "Banner"])
 
     with tab_cal:
         st.markdown("#### " + t("calendar_title"))
         for i, ev in enumerate(content.get("calendar", [])):
-            with st.expander(f"{ev.get('date','')} — {ev.get('name_en','')}"):
+            with st.expander(f"{ev.get('date', '')} — {ev.get('name_en', '')}"):
                 c1, c2 = st.columns(2)
                 ev["date"] = c1.text_input("Date", ev.get("date", ""), key=f"cal_date_{i}")
-                ev["category"] = c2.selectbox("Category", ["SEASONAL", "METEOR", "ECLIPSE"], index=["SEASONAL", "METEOR", "ECLIPSE"].index(ev.get("category", "METEOR")), key=f"cal_cat_{i}")
+                ev["category"] = c2.selectbox("Category", ["SEASONAL", "METEOR", "ECLIPSE"],
+                    index=["SEASONAL", "METEOR", "ECLIPSE"].index(ev.get("category", "METEOR")), key=f"cal_cat_{i}")
                 ev["category_class"] = {"SEASONAL": "type-equinox", "METEOR": "type-meteor", "ECLIPSE": "type-eclipse"}[ev["category"]]
                 ev["name_en"] = st.text_input("Name (EN)", ev.get("name_en", ""), key=f"cal_ne_{i}")
                 ev["name_th"] = st.text_input("Name (TH)", ev.get("name_th", ""), key=f"cal_nt_{i}")
@@ -260,7 +265,7 @@ def admin_content_editor():
     with tab_news:
         st.markdown("#### " + t("news_feed"))
         for i, n in enumerate(content.get("news", [])):
-            with st.expander(f"{n.get('date','')} — {n.get('title_en','')}"):
+            with st.expander(f"{n.get('date', '')} — {n.get('title_en', '')}"):
                 n["date"] = st.text_input("Date", n.get("date", ""), key=f"news_d_{i}")
                 n["tag_en"] = st.text_input("Tag (EN)", n.get("tag_en", ""), key=f"news_te_{i}")
                 n["tag_th"] = st.text_input("Tag (TH)", n.get("tag_th", ""), key=f"news_tt_{i}")
@@ -315,12 +320,12 @@ def admin_content_editor():
 # ═══════════════════════════════════════════════════════════════════════
 
 def render_portal():
-    st.markdown(f"""
-    <div style="text-align: center; margin-bottom: 30px;">
-        <h2 style="font-family: 'Orbitron', monospace; color: #fff; letter-spacing: 3px; font-size: 2rem;">{t("the_portal")}</h2>
-        <p style="color: #8b949e;">{t("portal_subtitle")}</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        f'<div style="text-align:center;margin-bottom:30px;">'
+        f'<h2 style="font-family:\'Orbitron\',monospace;color:#fff;letter-spacing:3px;font-size:2rem;">{t("the_portal")}</h2>'
+        f'<p style="color:#8b949e;">{t("portal_subtitle")}</p></div>',
+        unsafe_allow_html=True,
+    )
 
     with st.expander(t("enter_system"), expanded=False):
         login_tab, reg_tab = st.tabs([t("login"), t("register")])
@@ -411,28 +416,18 @@ def show_public_page():
     # Handle OAuth callbacks first
     _handle_oauth_callback()
 
-    # ── CSS (inside <style> tags — no leak) ──
-    st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');
-    .stApp {
-        background-color: #0d1117;
-        background-image: radial-gradient(circle at 10% 20%, rgba(20,35,60,0.4) 0%, transparent 40%),
-                          radial-gradient(circle at 90% 80%, rgba(40,20,60,0.3) 0%, transparent 40%);
-        color: #c9d1d9; font-family: 'Inter', sans-serif;
-    }
-    header[data-testid="stHeader"] { display: none !important; }
-    .block-container { padding-top: 2rem !important; max-width: 1200px !important; }
-    div[data-testid="stExpander"] {
-        background: rgba(14,17,23,0.8); border: 1px solid rgba(88,166,255,0.3);
-        border-radius: 12px; backdrop-filter: blur(10px);
-    }
-    div[data-testid="stExpander"] > summary p {
-        font-family: 'Orbitron', monospace; font-weight: 700;
-        font-size: 1.2rem; color: #58a6ff; letter-spacing: 2px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    # ── CSS (single-line, no indentation — prevents raw text leak) ──
+    st.markdown(
+        '<style>'
+        "@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');"
+        '.stApp{background-color:#0d1117;background-image:radial-gradient(circle at 10% 20%,rgba(20,35,60,0.4) 0%,transparent 40%),radial-gradient(circle at 90% 80%,rgba(40,20,60,0.3) 0%,transparent 40%);color:#c9d1d9;font-family:"Inter",sans-serif}'
+        'header[data-testid="stHeader"]{display:none!important}'
+        '.block-container{padding-top:2rem!important;max-width:1200px!important}'
+        'div[data-testid="stExpander"]{background:rgba(14,17,23,0.8);border:1px solid rgba(88,166,255,0.3);border-radius:12px;backdrop-filter:blur(10px)}'
+        'div[data-testid="stExpander"]>summary p{font-family:"Orbitron",monospace;font-weight:700;font-size:1.2rem;color:#58a6ff;letter-spacing:2px}'
+        '</style>',
+        unsafe_allow_html=True,
+    )
 
     # Language Selector (top of page)
     lang_selector(location="main")
@@ -441,14 +436,14 @@ def show_public_page():
     content = _load_content()
 
     # Header
-    st.markdown(f"""
-    <div style="text-align: center; margin-bottom: 40px; margin-top: 10px;">
-        <span style="font-size: 3rem;">🛰️</span>
-        <h1 style="font-family: 'Orbitron', monospace; font-weight: 900; font-size: 3.5rem; margin: 0;
-                   letter-spacing: 4px; color: #fff; text-shadow: 0 0 20px rgba(88,166,255,0.4);">{t("the_gateway")}</h1>
-        <p style="font-size: 1.2rem; color: #8b949e; letter-spacing: 1px; font-weight: 300;">{t("gateway_subtitle")}</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div style="text-align:center;margin-bottom:40px;margin-top:10px;">'
+        '<span style="font-size:3rem;">🛰️</span>'
+        f'<h1 style="font-family:\'Orbitron\',monospace;font-weight:900;font-size:3.5rem;margin:0;letter-spacing:4px;color:#fff;text-shadow:0 0 20px rgba(88,166,255,0.4);">{t("the_gateway")}</h1>'
+        f'<p style="font-size:1.2rem;color:#8b949e;letter-spacing:1px;font-weight:300;">{t("gateway_subtitle")}</p>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
     # Banner
     render_banner(content)
@@ -463,15 +458,19 @@ def show_public_page():
     # Knowledge Hub
     render_knowledge_hub()
 
-    st.markdown("<br><br><hr style='border-color: rgba(255,255,255,0.1);'><br>", unsafe_allow_html=True)
+    st.markdown('<br><br><hr style="border-color:rgba(255,255,255,0.1);"><br>', unsafe_allow_html=True)
 
     # The Portal (Auth)
     render_portal()
 
-    # Admin edit button (only visible if user is somehow logged in, or use a secret key combo)
-    # For convenience, an admin button at the bottom
+    # Admin edit button (only for admin users)
     st.markdown("<br><br>", unsafe_allow_html=True)
     admin_email = st.session_state.get("user_email", "")
     if admin_email and is_admin(admin_email):
         if st.button(t("admin_panel"), use_container_width=True):
-            admin_content_editor()
+            _show_admin_dialog()
+
+
+@st.dialog("Admin: Edit Gateway Content", width="large")
+def _show_admin_dialog():
+    _admin_content_editor()
