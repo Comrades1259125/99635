@@ -1,0 +1,88 @@
+{
+  "banner": {
+    "icon": "☄️",
+    "title_en": "Lyrids Meteor Shower",
+    "title_th": "ฝนดาวตกลีริดส์",
+    "desc_en": "Expect up to 18 meteors per hour. Peak visibility near the constellation Lyra.",
+    "desc_th": "คาดว่าจะมีดาวตกมากถึง 18 ดวงต่อชั่วโมง สังเกตได้ใกล้กลุ่มดาวพิณ",
+    "status_en": "🟢 OPTIMAL VIEWING",
+    "status_th": "🟢 สภาพดีเยี่ยม"
+  },
+  "calendar": [
+    {
+      "date": "MAR 20",
+      "name_en": "Vernal Equinox",
+      "name_th": "วสันตวิษุวัต",
+      "category": "SEASONAL",
+      "category_class": "type-equinox",
+      "detail_en": "Sun crosses the celestial equator. Equal day and night.",
+      "detail_th": "ดวงอาทิตย์ข้ามเส้นศูนย์สูตรฟ้า กลางวันและกลางคืนยาวเท่ากัน"
+    },
+    {
+      "date": "APR 22-23",
+      "name_en": "Lyrids Meteor Shower",
+      "name_th": "ฝนดาวตกลีริดส์",
+      "category": "METEOR",
+      "category_class": "type-meteor",
+      "detail_en": "Average shower, dust particles from comet C/1861 G1 Thatcher.",
+      "detail_th": "ฝนดาวตกขนาดกลาง จากฝุ่นดาวหางแทตเชอร์ C/1861 G1"
+    },
+    {
+      "date": "MAY 05",
+      "name_en": "Penumbral Lunar Eclipse",
+      "name_th": "จันทรุปราคาเงามัว",
+      "category": "ECLIPSE",
+      "category_class": "type-eclipse",
+      "detail_en": "Visible from Asia, Australia, parts of eastern Europe.",
+      "detail_th": "มองเห็นได้จากเอเชีย ออสเตรเลีย และบางส่วนของยุโรปตะวันออก"
+    },
+    {
+      "date": "AUG 12-13",
+      "name_en": "Perseids Meteor Shower",
+      "name_th": "ฝนดาวตกเพอร์เซอิดส์",
+      "category": "METEOR",
+      "category_class": "type-meteor",
+      "detail_en": "One of the best showers to observe, producing up to 60 meteors/hr.",
+      "detail_th": "หนึ่งในฝนดาวตกที่ดีที่สุดในปี มีอัตราสูงสุด 60 ดวง/ชม."
+    }
+  ],
+  "news": [
+    {
+      "date": "MAR 11, 2026",
+      "tag_en": "DISCOVERY",
+      "tag_th": "การค้นพบ",
+      "title_en": "JWST Detects Water Vapor on Distant Exoplanet",
+      "title_th": "JWST ตรวจพบไอน้ำบนดาวเคราะห์นอกระบบ",
+      "desc_en": "The James Webb Space Telescope has identified clear signatures of water vapor in the atmosphere of K2-18b, a exoplanet located 124 light-years away in the habitable zone.",
+      "desc_th": "กล้องโทรทรรศน์อวกาศเจมส์ เวบบ์ ตรวจพบลายเซ็นของไอน้ำในชั้นบรรยากาศของ K2-18b ซึ่งอยู่ห่างออกไป 124 ปีแสง"
+    },
+    {
+      "date": "MAR 08, 2026",
+      "tag_en": "MISSION UPDATE",
+      "tag_th": "ภารกิจ",
+      "title_en": "Artemis III Crew Manifest Announced",
+      "title_th": "ประกาศรายชื่อลูกเรือ Artemis III",
+      "desc_en": "NASA has revealed the four astronauts who will pilot the Orion spacecraft for the Artemis III lunar landing mission scheduled for 2027.",
+      "desc_th": "NASA เปิดเผยรายชื่อนักบินอวกาศ 4 คนที่จะควบคุมยาน Orion ในภารกิจ Artemis III ลงจอดบนดวงจันทร์ปี 2027"
+    },
+    {
+      "date": "MAR 02, 2026",
+      "tag_en": "OBSERVATION",
+      "tag_th": "การสังเกตการณ์",
+      "title_en": "New Near-Earth Asteroid Cataloged",
+      "title_th": "จัดทำบัญชีดาวเคราะห์น้อยใกล้โลกดวงใหม่",
+      "desc_en": "A newly discovered near-earth object, designated 2026-XQ, safely passed Earth at a distance of 1.2 million miles.",
+      "desc_th": "วัตถุใกล้โลกที่เพิ่งค้นพบ 2026-XQ ผ่านโลกอย่างปลอดภัยในระยะ 1.9 ล้านกิโลเมตร"
+    },
+    {
+      "date": "FEB 28, 2026",
+      "tag_en": "TECHNOLOGY",
+      "tag_th": "เทคโนโลยี",
+      "title_en": "Next-Gen Ion Thrusters Pass Endurance Tests",
+      "title_th": "เครื่องขับดันไอออนรุ่นใหม่ผ่านการทดสอบความทนทาน",
+      "desc_en": "The experimental Hall-effect thrusters designed for deep space probes have successfully operated for over 10,000 hours.",
+      "desc_th": "เครื่องขับดันแบบ Hall-effect ที่ออกแบบสำหรับยานสำรวจอวกาศลึกทำงานต่อเนื่องได้มากกว่า 10,000 ชั่วโมง"
+    }
+  ],
+  "articles": []
+}

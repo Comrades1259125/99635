@@ -14,6 +14,7 @@ from report_engine import generate_pdf
 from email_sender import send_pdf_email
 from gateway import show_public_page
 from auth import register_user, login_user, social_login
+from i18n import t, lang_selector
 from satellite_data import (
     SATELLITE_CATALOG, fetch_tle, compute_position,
     build_telemetry_40ch, compute_ground_track,
@@ -57,6 +58,8 @@ for key, default in {
     "alert_log": [],
     "logged_in": False,
     "username": "",
+    "user_email": "",
+    "lang": "en",
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default
@@ -381,35 +384,35 @@ def _build_and_save_pdf(archive_sat, ref_id, passkey, pred_dt=None):
 # ═══════════════════════════════════════════════════════════════════════════════
 #  DIALOG — Mission Archive Control
 # ═══════════════════════════════════════════════════════════════════════════════
-@st.dialog("MISSION ARCHIVE CONTROL", width="large")
+@st.dialog(t("mission_archive"), width="large")
 def mission_archive_control():
     dialog_sat = st.selectbox(
-        "🛰️ เลือกดาวเทียม (Select Satellite)",
+        t("select_satellite"),
         options=list(SATELLITE_CATALOG.keys()),
         index=list(SATELLITE_CATALOG.keys()).index(st.session_state.selected_satellite),
         key="dialog_satellite",
     )
-    st.markdown(f"### 📦 วิเคราะห์ภารกิจสำหรับ: **{dialog_sat}**")
+    st.markdown(f"### {t('analyze_mission')} **{dialog_sat}**")
 
     # ── Cache toggle ──
     st.session_state.remember_archive = st.toggle(
-        "💾 จดจำไฟล์ที่คำนวณไว้ (Remember cached report)",
+        t("remember_cache"),
         value=st.session_state.get("remember_archive", False),
         key="remember_toggle",
     )
 
     if not st.session_state.download_ready:
-        tab1, tab2 = st.tabs(["🔄 รายงานปัจจุบัน", "📅 รายงานล่วงหน้า"])
+        tab1, tab2 = st.tabs([t("realtime_report"), t("predictive_report")])
 
         with tab1:
-            st.info("ระบบจะสร้างรายงานจากการคำนวณตำแหน่ง ณ เวลาปัจจุบัน (Real-time)")
-            if st.button("🚀 GENERATE REAL-TIME PDF", use_container_width=True, type="primary"):
+            st.info(t("realtime_info"))
+            if st.button(t("generate_realtime"), use_container_width=True, type="primary"):
                 now = datetime.now()
                 seq = random.randint(100, 999)
                 ref_id = f"REF-{seq}-{now.strftime('%Y%m%d')}"
                 passkey = f"{random.randint(100000, 999999)}"
 
-                with st.spinner("กำลังสร้างรายงาน PDF พร้อม QR Code..."):
+                with st.spinner(t("generating_pdf")):
                     try:
                         pdf_bytes, pdf_path, pdf_filename = _build_and_save_pdf(
                             dialog_sat, ref_id, passkey,
@@ -423,28 +426,28 @@ def mission_archive_control():
                         st.session_state.download_ready = True
                         st.rerun()
                     except Exception as e:
-                        st.error(f"❌ เกิดข้อผิดพลาด: {e}")
+                        st.error(f"{t('error_occurred')} {e}")
 
         with tab2:
-            st.write("ระบุวันเวลาที่ต้องการวิเคราะห์ตำแหน่งล่วงหน้า")
+            st.write(t("predictive_info"))
             col1, col2 = st.columns(2)
             pred_date = col1.date_input(
-                "วันที่", value=datetime.now(),
+                t("pred_date"), value=datetime.now(),
                 key="pred_date_input",
             )
             pred_time = col2.time_input(
-                "เวลา", value=datetime.now().time(),
+                t("pred_time"), value=datetime.now().time(),
                 key="pred_time_input",
             )
 
-            if st.button("📅 CALCULATE & DOWNLOAD PREDICTIVE PDF", use_container_width=True):
+            if st.button(t("calculate_predictive"), use_container_width=True):
                 dt = datetime.combine(pred_date, pred_time).replace(tzinfo=timezone.utc)
                 now = datetime.now()
                 seq = random.randint(100, 999)
                 ref_id = f"REF-{seq}-{now.strftime('%Y%m%d')}"
                 passkey = f"{random.randint(100000, 999999)}"
 
-                with st.spinner("กำลังคำนวณตำแหน่งล่วงหน้าและสร้าง PDF..."):
+                with st.spinner(t("calculating_pdf")):
                     try:
                         pdf_bytes, pdf_path, pdf_filename = _build_and_save_pdf(
                             dialog_sat, ref_id, passkey, pred_dt=dt,
@@ -459,7 +462,7 @@ def mission_archive_control():
                         st.session_state.download_ready = True
                         st.rerun()
                     except Exception as e:
-                        st.error(f"❌ เกิดข้อผิดพลาด: {e}")
+                        st.error(f"{t('error_occurred')} {e}")
 
     else:
         # ── Download Ready — show Archive ID, Password, file info ──
@@ -468,7 +471,7 @@ def mission_archive_control():
                     border: 1px solid #ccc; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
             <h3 style="color: #666; margin: 0; font-size: 0.8rem; letter-spacing: 3px;">SECURE ARCHIVE ACCESS</h3>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-            <p style="color: #888; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 5px;">ARCHIVE ID</p>
+            <p style="color: #888; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 5px;">{t('archive_id')}</p>
             <h1 style="color: #FF0000; font-family: 'Courier New', monospace; font-weight: 900;
                        margin: 0 0 20px 0;">{st.session_state.ref_id}</h1>
             <p style="color: #888; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 5px;">PASSWORD</p>
@@ -476,7 +479,7 @@ def mission_archive_control():
                        margin: 0 0 20px 0;">{st.session_state.passkey}</h2>
             <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
             <p style="color: #28a745; font-size: 0.9rem; font-weight: 700; margin: 0;">
-                ✅ ไฟล์ PDF พร้อมสำหรับดาวน์โหลด (พร้อม QR Code ตรวจสอบ)</p>
+                {t('pdf_ready')}</p>
             <p style="color: #666; font-size: 0.75rem; margin: 8px 0 0 0;">
                 📂 {st.session_state.get('saved_pdf_filename', '')}</p>
         </div>
@@ -488,7 +491,7 @@ def mission_archive_control():
         btn_col1, btn_col2 = st.columns(2)
         with btn_col1:
             st.download_button(
-                label="📥 ดาวน์โหลดไฟล์ PDF",
+                label=t("download_pdf"),
                 data=st.session_state.get('cached_pdf', b''),
                 file_name=st.session_state.get('saved_pdf_filename', 'report.pdf'),
                 mime="application/pdf",
@@ -497,7 +500,7 @@ def mission_archive_control():
             )
 
         with btn_col2:
-            if st.button("🔙 สร้างรายงานใหม่", use_container_width=True):
+            if st.button(t("new_report"), use_container_width=True):
                 if st.session_state.get("remember_archive", False):
                     st.session_state.download_ready = True
                 else:
@@ -512,19 +515,19 @@ def mission_archive_control():
         # ── Email Section ──
         st.markdown("---")
         if st.session_state.gmail_address and st.session_state.gmail_app_password:
-            st.markdown("#### 📧 ส่งรายงานทาง Email")
+            st.markdown(f"#### {t('send_email')}")
             recipient = st.text_input(
-                "Email ผู้รับ",
+                t("recipient_email"),
                 placeholder="recipient@example.com",
                 key="email_recipient",
             )
-            if st.button("📧 SEND EMAIL", use_container_width=True, type="primary"):
+            if st.button(t("send_email"), use_container_width=True, type="primary"):
                 if not recipient:
-                    st.warning("กรุณาใส่ Email ผู้รับ")
+                    st.warning(t("enter_recipient"))
                 elif st.session_state.get("cached_pdf") is None:
-                    st.error("ไม่พบไฟล์ PDF")
+                    st.error(t("no_pdf_found"))
                 else:
-                    with st.spinner("กำลังส่ง Email..."):
+                    with st.spinner(t("sending_email")):
                         success, message = send_pdf_email(
                             sender_email=st.session_state.gmail_address,
                             app_password=st.session_state.gmail_app_password,
@@ -540,7 +543,7 @@ def mission_archive_control():
                     else:
                         st.error(f"❌ {message}")
         else:
-            st.info("📧 ตั้งค่า Gmail + App Password ใน Sidebar เพื่อส่ง Email")
+            st.info(t("setup_gmail"))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -553,15 +556,16 @@ if not st.session_state.logged_in:
     st.stop()
 
 with st.sidebar:
-    st.markdown("### 🛰️ Satellite Selection")
+    lang_selector(location="sidebar")
+    st.markdown(f"### {t('satellite_selection')}")
     st.session_state.selected_satellite = st.selectbox(
-        "Select Target Satellite",
+        t("select_target"),
         options=list(SATELLITE_CATALOG.keys()),
         index=0,
     )
 
     if st.session_state.selected_satellite != st.session_state.last_sat_name:
-        with st.spinner(f"Fetching TLE for {st.session_state.selected_satellite}..."):
+        with st.spinner(f"{t('fetching_tle')} {st.session_state.selected_satellite}..."):
             norad_id = SATELLITE_CATALOG[st.session_state.selected_satellite]
             st.session_state.satellite_obj = fetch_tle(
                 st.session_state.selected_satellite, norad_id
@@ -569,23 +573,23 @@ with st.sidebar:
             st.session_state.last_sat_name = st.session_state.selected_satellite
 
     st.markdown("---")
-    st.markdown("### 📡 Station Information")
+    st.markdown(f"### {t('station_info')}")
     locked = st.session_state.station_locked
 
     st.session_state.sub_district = st.text_input(
-        "ตำบล (Sub-district)", value=st.session_state.sub_district, disabled=locked
+        t("sub_district"), value=st.session_state.sub_district, disabled=locked
     )
     st.session_state.district = st.text_input(
-        "อำเภอ (District)", value=st.session_state.district, disabled=locked
+        t("district"), value=st.session_state.district, disabled=locked
     )
     st.session_state.province = st.text_input(
-        "จังหวัด (Province)", value=st.session_state.province, disabled=locked
+        t("province"), value=st.session_state.province, disabled=locked
     )
     st.session_state.zip_code = st.text_input(
-        "รหัสไปรษณีย์ (Zip Code)", value=st.session_state.zip_code, disabled=locked
+        t("zip_code"), value=st.session_state.zip_code, disabled=locked
     )
     st.session_state.country = st.text_input(
-        "ประเทศ (Country)", value=st.session_state.country, disabled=locked
+        t("country"), value=st.session_state.country, disabled=locked
     )
     lat_col, lon_col = st.columns(2)
     st.session_state.station_lat = lat_col.number_input(
@@ -598,7 +602,7 @@ with st.sidebar:
     )
 
     if not locked:
-        if st.button("📍 ค้นหาพิกัดจากที่อยู่", use_container_width=True):
+        if st.button(t("search_coords"), use_container_width=True):
             full_addr = " ".join(filter(None, [
                 st.session_state.sub_district,
                 st.session_state.district,
@@ -606,49 +610,49 @@ with st.sidebar:
                 st.session_state.zip_code,
                 st.session_state.country,
             ]))
-            with st.spinner("กำลังค้นหาพิกัด..."):
+            with st.spinner(t("searching_coords")):
                 lat, lon = _geocode_address(full_addr)
             if lat is not None:
                 st.session_state.station_lat = lat
                 st.session_state.station_lon = lon
-                st.success(f"พบพิกัด: {lat:.6f}, {lon:.6f}")
+                st.success(f"{t('coords_found')} {lat:.6f}, {lon:.6f}")
                 st.rerun()
             else:
-                st.error("ไม่พบพิกัดจากที่อยู่ที่กรอก")
+                st.error(t("coords_not_found"))
 
     if not locked:
-        if st.button("✅ LOCK STATION", use_container_width=True):
+        if st.button(t("lock_station"), use_container_width=True):
             st.session_state.station_locked = True
             st.rerun()
     else:
-        st.success("🔒 Station Locked")
-        if st.button("🔓 Unlock", use_container_width=True):
+        st.success(t("station_locked"))
+        if st.button(t("unlock"), use_container_width=True):
             st.session_state.station_locked = False
             st.rerun()
 
     # ── Zoom Controls ────────────────────────────────────────────────────────
     st.markdown("---")
-    st.markdown("### 🔍 Map Zoom Controls")
+    st.markdown(f"### {t('map_zoom')}")
     st.session_state.zoom_tactical = st.slider(
-        "🗺️ Tactical Map", 1, 18, st.session_state.zoom_tactical
+        t("tactical_map"), 1, 18, st.session_state.zoom_tactical
     )
     st.session_state.zoom_global = st.slider(
-        "🌍 Global Map", 1, 18, st.session_state.zoom_global
+        t("global_map"), 1, 18, st.session_state.zoom_global
     )
     st.session_state.zoom_station = st.slider(
-        "📡 Station Map", 1, 18, st.session_state.zoom_station
+        t("station_map"), 1, 18, st.session_state.zoom_station
     )
     st.session_state.zoom_globe = st.slider(
-        "🌐 3D Globe Scale", 1, 8, st.session_state.zoom_globe
+        t("globe_3d"), 1, 8, st.session_state.zoom_globe
     )
 
     st.markdown("---")
-    if st.button("📦 MISSION ARCHIVE CONTROL", use_container_width=True, type="primary"):
+    if st.button(t("mission_archive"), use_container_width=True, type="primary"):
         mission_archive_control()
 
     # ── Email Settings ────────────────────────────────────────────────────────
     st.markdown("---")
-    st.markdown("### 📧 Email Settings (Gmail)")
+    st.markdown(f"### {t('email_settings')}")
     st.session_state.gmail_address = st.text_input(
         "Gmail Address", value=st.session_state.gmail_address,
         placeholder="your.email@gmail.com",
@@ -659,38 +663,38 @@ with st.sidebar:
         help="Go to Google Account > Security > App Passwords to generate one",
     )
     if st.session_state.gmail_address and st.session_state.gmail_app_password:
-        st.success("Email configured")
+        st.success(t("email_configured"))
     else:
         st.info("Gmail + App Password")
 
     # ── Theme Toggle ──────────────────────────────────────────────────────────
     st.markdown("---")
-    st.markdown("### Theme")
-    dark = st.toggle("Dark Mode", value=st.session_state.dark_mode, key="theme_toggle")
+    st.markdown(f"### {t('theme')}")
+    dark = st.toggle(t("dark_mode"), value=st.session_state.dark_mode, key="theme_toggle")
     st.session_state.dark_mode = dark
 
     # ── Alert System ──────────────────────────────────────────────────────────
     st.markdown("---")
-    st.markdown("### Alert System")
+    st.markdown(f"### {t('alert_system')}")
     st.session_state.alerts_enabled = st.toggle(
-        "Enable Proximity Alerts", value=st.session_state.alerts_enabled,
+        t("enable_alerts"), value=st.session_state.alerts_enabled,
         key="alert_toggle",
     )
     if st.session_state.alerts_enabled:
         st.session_state.alert_distance_km = st.slider(
-            "Alert Distance (km)", 100, 5000,
+            t("alert_distance"), 100, 5000,
             st.session_state.alert_distance_km, step=100,
         )
         if st.session_state.alert_log:
-            with st.expander("Alert Log", expanded=False):
+            with st.expander(t("alert_log"), expanded=False):
                 for msg in reversed(st.session_state.alert_log[-10:]):
                     st.caption(msg)
 
     # ── Multi-Satellite Tracking ──────────────────────────────────────────────
     st.markdown("---")
-    st.markdown("### Multi-Satellite")
+    st.markdown(f"### {t('multi_satellite')}")
     tracked = st.multiselect(
-        "Track (max 5)",
+        t("track_max5"),
         options=list(SATELLITE_CATALOG.keys()),
         default=st.session_state.tracked_satellites,
         max_selections=5,
@@ -700,8 +704,8 @@ with st.sidebar:
 
     # ── Satellite Pass Prediction ─────────────────────────────────────────────
     st.markdown("---")
-    st.markdown("### Pass Prediction")
-    if st.button("Calculate Next Passes", use_container_width=True):
+    st.markdown(f"### {t('pass_prediction')}")
+    if st.button(t("calc_next_passes"), use_container_width=True):
         if st.session_state.satellite_obj:
             from skyfield.api import load, Topos
             ts = load.timescale()
@@ -735,16 +739,17 @@ with st.sidebar:
                 for p in passes[:5]:
                     st.caption(p)
             else:
-                st.caption("No passes in next 24h")
+                st.caption(t("no_passes"))
         else:
-            st.caption("Load satellite first")
+            st.caption(t("load_sat_first"))
 
     # ── User Status ──
     st.markdown("---")
-    st.success(f"Logged in: {st.session_state.username}")
-    if st.button("LOGOUT", use_container_width=True):
+    st.success(f"{t('logged_in_as')}{st.session_state.username}")
+    if st.button(t("logout"), use_container_width=True):
         st.session_state.logged_in = False
         st.session_state.username = ""
+        st.session_state.user_email = ""
         st.rerun()
 
 
@@ -830,7 +835,7 @@ def live_dashboard():
 
         # Multi-Satellite Tracking Map
         if st.session_state.tracked_satellites:
-            st.markdown('<p class="telemetry-header">MULTI-SATELLITE TRACKING</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="telemetry-header">{t("multi_sat_tracking")}</p>', unsafe_allow_html=True)
             multi_fig = go.Figure()
             colors = ["#ff4444", "#44ff44", "#ffaa00", "#aa44ff", "#44ffff"]
             for idx, ms_name in enumerate(st.session_state.tracked_satellites):
@@ -859,7 +864,7 @@ def live_dashboard():
             st.plotly_chart(multi_fig, use_container_width=True, key="map_multi")
 
         st.markdown(
-            '<p class="telemetry-header">TELEMETRY DATA - 40 CHANNELS</p>',
+            f'<p class="telemetry-header">{t("telemetry_40ch")}</p>',
             unsafe_allow_html=True,
         )
         telemetry_df = build_telemetry_40ch(sat_name, st.session_state.satellite_obj)
@@ -873,7 +878,7 @@ def live_dashboard():
         with exp_col1:
             csv_data = telemetry_df.to_csv(index=False).encode("utf-8")
             st.download_button(
-                label="CSV Export",
+                label=t("csv_export"),
                 data=csv_data,
                 file_name=f"telemetry_{sat_name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                 mime="text/csv",
@@ -883,7 +888,7 @@ def live_dashboard():
             excel_buf = _io.BytesIO()
             telemetry_df.to_excel(excel_buf, index=False, engine="openpyxl")
             st.download_button(
-                label="Excel Export",
+                label=t("excel_export"),
                 data=excel_buf.getvalue(),
                 file_name=f"telemetry_{sat_name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -906,7 +911,7 @@ def live_dashboard():
         if len(history) > 2:
             import pandas as pd
             hist_df = pd.DataFrame(history)
-            st.markdown('<p class="telemetry-header">TELEMETRY HISTORY</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="telemetry-header">{t("telemetry_history")}</p>', unsafe_allow_html=True)
             chart_col1, chart_col2 = st.columns(2)
             with chart_col1:
                 fig_alt = go.Figure()
@@ -952,10 +957,10 @@ def live_dashboard():
                     st.session_state.alert_log.append(alert_msg)
                     if len(st.session_state.alert_log) > 20:
                         st.session_state.alert_log = st.session_state.alert_log[-20:]
-                st.warning(f"PROXIMITY ALERT: {sat_name} is {dist_km:.0f} km from station!")
+                st.warning(f"{t('proximity_alert')}: {sat_name} — {dist_km:.0f} km!")
 
     else:
-        st.warning("Waiting for TLE data...")
+        st.warning(t("waiting_tle"))
 
 
 live_dashboard()
